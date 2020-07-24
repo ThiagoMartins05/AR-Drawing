@@ -11,6 +11,7 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
+    @IBOutlet weak var draw: UIButton!
     @IBOutlet weak var sceneView: ARSCNView!
     let configuration = ARWorldTrackingConfiguration()//detecta orientação e posição do dispositivo
     
@@ -29,7 +30,38 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let transform = pointOfView.transform
         let orientation = SCNVector3(-transform.m31, -transform.m32, -transform.m33)
         let location = SCNVector3(transform.m41, transform.m42, transform.m43)
-       // let currentPositionOfCamera = orientation + location
+        let currentPositionOfCamera = orientation + location
+        
+        DispatchQueue.main.sync {
+            if self.draw.isHighlighted{
+                    let sphereNode = SCNNode(geometry: SCNSphere(radius: 0.02))
+                    sphereNode.position = currentPositionOfCamera
+                    self.sceneView.scene.rootNode.addChildNode(sphereNode)
+                    sphereNode.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+                        print("Draw button is being pressed")
+                          }
+                   else{
+//                let pointer = SCNNode(geometry: SCNBox(width: 0.01, height: 0.01, length: 0.01, chamferRadius: 0.01/2))
+                let pointer = SCNNode(geometry: SCNSphere(radius: 0.01))
+                pointer.name = "pointer"
+                pointer.position = currentPositionOfCamera
+                    
+                    self.sceneView.scene.rootNode.enumerateChildNodes { (node, _) in
+//                        if node.geometry is SCNBox{
+//                           node.removeFromParentNode()
+//                        }
+                        if node.name == "pointer"{
+                            node.removeFromParentNode()
+                        }
+                        
+                    }
+                    
+                    self.sceneView.scene.rootNode.addChildNode(pointer)
+                    pointer.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+                    }
+        }
+        
+       
     }
 
 }
